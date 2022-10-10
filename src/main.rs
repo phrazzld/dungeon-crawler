@@ -1,5 +1,6 @@
 use colored::*;
-use std::io;
+use std::io::Write;
+use std::{io, thread, time};
 
 fn main() {
     match intro() {
@@ -57,34 +58,64 @@ fn intro() -> bool {
     }
 }
 
+fn dramatic_print(text: &str) {
+    for c in text.chars() {
+        print!("{}", c);
+        io::stdout().flush().expect("Something went wrong.");
+        match c {
+            '.' | '\n' => thread::sleep(time::Duration::from_millis(300)),
+            ':' => thread::sleep(time::Duration::from_millis(200)),
+            ',' => thread::sleep(time::Duration::from_millis(100)),
+            _ => thread::sleep(time::Duration::from_millis(25))
+        }
+    }
+    print!("\n");
+}
+
 fn start_crawling() {
-    println!("\n");
-    println!("It is night. You are in an open forest. The moon is full, and the sky is bright with stars.
+    let open_forest = "\nIt is night. You are in an open forest. The moon is full, and the sky is bright with stars.
 Ahead of you the forest gets thicker and darker.
 To your left is a hill, with a large house sitting atop it.
-To your right is more of the same open forest.");
-    println!("What do you do?");
+To your right is more of the same open forest.
 
-    println!("A: Go ahead, deeper into the forest.");
-    println!("B: Go left, to the house on the hill.");
-    println!("C: Go right, exploring the edge of the forest.");
-    println!("D: Go back, turn around and head home.");
+What do you do?
+A: Go ahead, deeper into the forest.
+B: Go left, to the house on the hill.
+C: Go right, exploring the edge of the forest.
+D: Go back, turn around and head home.";
 
-    let mut player_choice = String::new();
-    io::stdin()
-        .read_line(&mut player_choice)
-        .expect("Failed to read line");
+    dramatic_print(open_forest);
 
-    player_choice = player_choice.trim().to_lowercase();
+    loop {
+        let mut player_choice = String::new();
+        io::stdin()
+            .read_line(&mut player_choice)
+            .expect("Failed to read line");
 
-    match player_choice.as_str() {
-        "a" => deeper_into_the_forest(),
-        "b" => to_the_house_on_the_hill(),
-        "c" => explore_the_woods_edge(),
-        "d" => go_home(),
-        _ => {
-            println!("Sorry, I didn't catch that.");
-            start_crawling();
+        player_choice = player_choice.trim().to_lowercase();
+
+        match player_choice.as_str() {
+            "a" => {
+                deeper_into_the_forest();
+                break;
+            },
+            "b" => {
+                to_the_house_on_the_hill();
+                break;
+            },
+            "c" => {
+                explore_the_woods_edge();
+                break;
+            },
+            "d" => {
+                go_home();
+                break;
+            },
+            _ => {
+                println!("\n");
+                println!("{}", "Please answer A, B, C, or D".red());
+                thread::sleep(time::Duration::from_secs(2));
+            }
         }
     }
 }
